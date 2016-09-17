@@ -3,9 +3,9 @@ package utils
 import "hash/adler32"
 
 // TextToIndex func determines scaled int hash by text
-func TextToIndex(text string, scale int) uint32 {
+func TextToIndex(text string, scale int) int {
 	byteText := []byte(text)
 	checkSum := adler32.Checksum(byteText)
 
-	return checkSum % uint32(scale)
+	return int((checkSum % uint32(scale)) - uint32(1))
 }

@@ -13,5 +13,5 @@ func NewStore() *Store {
 }
 
 func getBalancingIndex(keyName string) int {
-	return utils.TextToIndex(keyName, pageChildSize)
+	return utils.TextToIndex(keyName, *pageChildSize)
 }

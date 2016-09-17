@@ -3,7 +3,6 @@ package store
 import (
 	"errors"
 	"github.com/kotfalya/store/types"
-	"github.com/kotfalya/store/utils"
 	"sync"
 )
 
@@ -37,16 +36,31 @@ func (p *Page) Add(key types.Key, index int) error {
 	return p.add(key, index)
 }
 
-func (p *Page) add(key types.Key, index int) error {
-	p.keys[key.Name()] = key
+func (p *Page) add(key types.Key, index int) (err error) {
+	if p.leaf {
+		p.keys[key.Name()] = key
+	} else {
+		err = p.children[index].Add(key, index)
+	}
 
-	return nil
+	return err
 }
 
 func (p *Page) load(keyName string, index int) (types.Key, error) {
-	if res, ok := p.keys[keyName]; ok {
-		return res, nil
+	var (
+		key types.Key
+		err error
+		ok  bool
+	)
+
+	if p.leaf {
+		key, ok = p.keys[keyName]
+		if !ok {
+			err = errors.New(ErrUndefinedKey)
+		}
 	} else {
-		return nil, errors.New(ErrUndefinedKey)
+		key, err = p.children[index].Load(keyName, index)
 	}
+
+	return key, err
 }

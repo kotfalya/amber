@@ -3,10 +3,12 @@ package store
 import (
 	"errors"
 	"github.com/kotfalya/store/types"
+	"github.com/kotfalya/store/utils"
 	"sync"
 )
 
 type Page struct {
+	leaf     bool
 	muRW     sync.RWMutex
 	keys     map[string]types.Key
 	children []*Page
@@ -14,6 +16,7 @@ type Page struct {
 
 func NewPage() *Page {
 	return &Page{
+		leaf:     true,
 		muRW:     sync.RWMutex{},
 		keys:     make(map[string]types.Key, *pageKeysSize),
 		children: make([]*Page, *pageChildSize),

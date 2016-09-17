@@ -2,13 +2,10 @@ package utils
 
 import "hash/adler32"
 
-// Hash func determines child Page to use
-func Hash(keyName string, pageChildSize int) (rv uint32, err error) {
-	var checkSum uint32
-	err = nil
+// TextToIndex func determines scaled int hash by text
+func TextToIndex(text string, scale int) uint32 {
+	byteText := []byte(text)
+	checkSum := adler32.Checksum(byteText)
 
-	byteKeyName := []byte(keyName)
-	checkSum = adler32.Checksum(byteKeyName)
-	rv = checkSum % uint32(pageChildSize)
-	return
+	return checkSum % uint32(scale)
 }

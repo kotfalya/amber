@@ -41,7 +41,3 @@ func (s *Store) Set(keyName string, value interface{}) error {
 
 	return key.SetValue(value)
 }
-
-func getBalancingIndex(keyName string) int {
-	return 5
-}

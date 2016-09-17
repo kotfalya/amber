@@ -2,77 +2,48 @@ package store
 
 import (
 	"errors"
-	"github.com/kotfalya/store/key"
-	"reflect"
+	"github.com/kotfalya/store/types"
 	"sync"
-)
-
-const (
-	ERR_UNDEFINED_KEY = "store:undefined key"
 )
 
 type Page struct {
 	muRW     sync.RWMutex
-	keys     map[string]*key.Key
+	keys     map[string]types.Key
 	children []*Page
 }
 
 func NewPage() *Page {
 	return &Page{
-		keys:     make(map[string]*key.Key, *pageKeysSize),
+		muRW:     sync.RWMutex{},
+		keys:     make(map[string]types.Key, *pageKeysSize),
 		children: make([]*Page, *pageChildSize),
 	}
 }
 
-func (p *Page) Exists(keyName string) bool {
+func (p *Page) Load(keyName string, index int) (types.Key, error) {
 	p.muRW.RLock()
 	defer p.muRW.RUnlock()
 
-	return p.exists(keyName)
+	return p.load(keyName, index)
 }
 
-func (p *Page) Load(keyName string) (*key.Key, error) {
-	p.muRW.RLock()
-	defer p.muRW.RUnlock()
+func (p *Page) Add(key types.Key, index int) error {
+	p.muRW.Lock()
+	defer p.muRW.Unlock()
 
-	return p.load(keyName)
+	return p.add(key, index)
 }
 
-//func (p *Page) Add() {
-//
-//}
+func (p *Page) add(key types.Key, index int) error {
+	p.keys[key.Name()] = key
 
-func (p *Page) exists(keyName string) bool {
-	_, ok := p.keys[keyName]
-
-	return ok
+	return nil
 }
 
-func (p *Page) load(keyName string) (*key.Key, error) {
+func (p *Page) load(keyName string, index int) (types.Key, error) {
 	if res, ok := p.keys[keyName]; ok {
 		return res, nil
 	} else {
-		return nil, errors.New(ERR_UNDEFINED_KEY)
+		return nil, errors.New(ErrUndefinedKey)
 	}
 }
-
-//func (p *Page) Save(keyName string, value interface{}) error {
-//	var (
-//		res *key.Key
-//		ok  bool
-//	)
-//
-//	reflect.
-//		res, ok = p.keys[keyName]
-//	if !ok {
-//		res = New
-//	}
-//
-//	if res, ok = p.keys[keyName]; ok {
-//		k
-//		return nil
-//	} else {
-//		return nil, errors.New("store:undefined key")
-//	}
-//
-//}

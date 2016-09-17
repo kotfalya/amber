@@ -1,7 +1,7 @@
-package key
+package types
 
 type Key interface {
-	Name() interface{}
+	Name() string
 	Value() interface{}
 	SetValue(interface{}) error
 }

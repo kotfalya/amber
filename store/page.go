@@ -50,9 +50,31 @@ func (p *Page) Add(key types.Key, index int) error {
 	}
 }
 
+func (p *Page) Remove(keyName string, index int) error {
+	p.muRW.Lock()
+
+	if p.leaf {
+		defer p.muRW.Unlock()
+		return p.remove(keyName, index)
+	} else {
+		child := p.children[index]
+		p.muRW.RUnlock()
+
+		return child.Remove(keyName, index)
+	}
+}
+
 func (p *Page) add(key types.Key, index int) (err error) {
 	err = nil
 	p.keys[key.Name()] = key
+
+	return
+}
+
+func (p *Page) remove(keyName string, index int) (err error) {
+	err = nil
+
+	delete(p.keys, keyName)
 
 	return
 }

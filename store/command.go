@@ -14,6 +14,14 @@ func (s *Store) Exists(keyName string) (bool, error) {
 	}
 }
 
+func (s *Store) Delete(keyName string) (bool, error) {
+	if err := s.page.Remove(keyName, getBalancingIndex(keyName)); err != nil {
+		return false, err
+	} else {
+		return true
+	}
+}
+
 func (s *Store) Get(keyName string) (string, error) {
 	if key, err := s.page.Load(keyName, getBalancingIndex(keyName)); err != nil {
 		return "", err

@@ -24,26 +24,37 @@ func NewPage() *Page {
 
 func (p *Page) Load(keyName string, index int) (types.Key, error) {
 	p.muRW.RLock()
-	defer p.muRW.RUnlock()
 
-	return p.load(keyName, index)
+	if p.leaf {
+		defer p.muRW.RUnlock()
+		return p.load(keyName, index)
+	} else {
+		child := p.children[index]
+		p.muRW.RUnlock()
+
+		return child.Load(keyName, index)
+	}
 }
 
 func (p *Page) Add(key types.Key, index int) error {
 	p.muRW.Lock()
-	defer p.muRW.Unlock()
 
-	return p.add(key, index)
+	if p.leaf {
+		defer p.muRW.Unlock()
+		return p.add(key, index)
+	} else {
+		child := p.children[index]
+		p.muRW.RUnlock()
+
+		return child.Add(key, index)
+	}
 }
 
 func (p *Page) add(key types.Key, index int) (err error) {
-	if p.leaf {
-		p.keys[key.Name()] = key
-	} else {
-		err = p.children[index].Add(key, index)
-	}
+	err = nil
+	p.keys[key.Name()] = key
 
-	return err
+	return
 }
 
 func (p *Page) load(keyName string, index int) (types.Key, error) {
@@ -53,13 +64,8 @@ func (p *Page) load(keyName string, index int) (types.Key, error) {
 		ok  bool
 	)
 
-	if p.leaf {
-		key, ok = p.keys[keyName]
-		if !ok {
-			err = errors.New(ErrUndefinedKey)
-		}
-	} else {
-		key, err = p.children[index].Load(keyName, index)
+	if key, ok = p.keys[keyName]; !ok {
+		err = errors.New(ErrUndefinedKey)
 	}
 
 	return key, err

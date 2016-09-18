@@ -44,7 +44,7 @@ func (p *Page) Add(key types.Key, index int) error {
 		return p.add(key, index)
 	} else {
 		child := p.children[index]
-		p.muRW.RUnlock()
+		p.muRW.Unlock()
 
 		return child.Add(key, index)
 	}
@@ -58,7 +58,7 @@ func (p *Page) Remove(keyName string, index int) error {
 		return p.remove(keyName, index)
 	} else {
 		child := p.children[index]
-		p.muRW.RUnlock()
+		p.muRW.Unlock()
 
 		return child.Remove(keyName, index)
 	}

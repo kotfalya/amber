@@ -1,7 +1,5 @@
 package store
 
-import "github.com/kotfalya/store/utils"
-
 type Store struct {
 	page *Page
 }
@@ -12,6 +10,10 @@ func NewStore() *Store {
 	}
 }
 
-func getBalancingIndex(keyName string) int {
-	return utils.TextToIndex(keyName, *pageChildSize)
+func (s *Store) GetKey(keyName string) (Key, error) {
+	req := NewPageReq("get", keyName)
+	s.page.AddReq(req)
+	res := req.Done().(*KeyPageRes)
+
+	return res.Val(), res.Err()
 }

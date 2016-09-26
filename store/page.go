@@ -2,93 +2,198 @@ package store
 
 import (
 	"errors"
-	"github.com/kotfalya/store/types"
+	"github.com/kotfalya/store/utils"
 	"sync"
 )
 
 type Page struct {
-	leaf     bool
-	muRW     sync.RWMutex
-	keys     map[string]types.Key
-	children []*Page
+	leaf  bool
+	muRW  sync.RWMutex
+	keys  map[string]Key
+	leafs []*Page
+	req   chan *PageReq
+	stop  chan struct{}
 }
 
 func NewPage() *Page {
-	return &Page{
-		leaf:     true,
-		muRW:     sync.RWMutex{},
-		keys:     make(map[string]types.Key, *pageKeysSize),
-		children: make([]*Page, *pageChildSize),
+	page := &Page{
+		leaf:  true,
+		muRW:  sync.RWMutex{},
+		keys:  make(map[string]Key, *pageKeysSize),
+		leafs: make([]*Page, *pageLeafPoolSize),
+		req:   make(chan *PageReq, *pageReqBufferSize),
+		stop:  make(chan struct{}),
+	}
+	go page.start()
+
+	return page
+}
+
+func (p *Page) AddReq(req *PageReq) {
+	req.start()
+	p.req <- req
+
+	return
+}
+
+func (p *Page) handler(req *PageReq) {
+	switch req.name {
+	case "get":
+		keyName := req.args[0].(string)
+		key, err := p.load(keyName)
+
+		req.AddRes(NewKeyPageRes(key, err))
+	case "add":
+	case "remove":
+
 	}
 }
 
-func (p *Page) Load(keyName string, index int) (types.Key, error) {
-	p.muRW.RLock()
+func (p *Page) start() {
+	sem := utils.NewSemaphore(*pageReqBufferSize)
+
+	for {
+		select {
+		case req := <-p.req:
+			sem.Acquire()
+			go func(req *PageReq) {
+				defer sem.Release()
+				p.handler(req)
+			}(req)
+		case <-p.stop:
+			close(p.req)
+			return
+		}
+	}
+}
+
+func (p *Page) Stop() {
+	close(p.stop)
+}
+
+func (p *Page) load(keyName string) (key Key, err error) {
+	//p.muRW.RLock()
 
 	if p.leaf {
-		defer p.muRW.RUnlock()
-		return p.load(keyName, index)
+		//defer p.muRW.RUnlock()
+		var ok bool
+
+		if key, ok = p.keys[keyName]; !ok {
+			err = errors.New(ErrUndefinedKey)
+		}
+
+		return
 	} else {
-		child := p.children[index]
+		index := 0 // TODO add calculate index function
+		child := p.leafs[index]
 		p.muRW.RUnlock()
 
-		return child.Load(keyName, index)
+		return child.load(keyName)
 	}
 }
 
-func (p *Page) Add(key types.Key, index int) error {
+func (p *Page) add(key Key) (err error) {
 	p.muRW.Lock()
 
 	if p.leaf {
 		defer p.muRW.Unlock()
-		return p.add(key, index)
+
+		p.keys[key.Name()] = key
+
+		return nil
 	} else {
-		child := p.children[index]
+		index := 0 // TODO add calculate index function
+		child := p.leafs[index]
 		p.muRW.Unlock()
 
-		return child.Add(key, index)
+		return child.add(key)
 	}
 }
 
-func (p *Page) Remove(keyName string, index int) error {
-	p.muRW.Lock()
+type PageReq struct {
+	name string
+	args []interface{}
+	res  chan PageRes
+	stop chan struct{}
+}
 
-	if p.leaf {
-		defer p.muRW.Unlock()
-		return p.remove(keyName, index)
-	} else {
-		child := p.children[index]
-		p.muRW.Unlock()
-
-		return child.Remove(keyName, index)
+func NewPageReq(name string, args ...interface{}) *PageReq {
+	return &PageReq{
+		name: name,
+		args: args,
+		res:  make(chan PageRes),
+		stop: make(chan struct{}),
 	}
 }
 
-func (p *Page) add(key types.Key, index int) (err error) {
-	err = nil
-	p.keys[key.Name()] = key
-
-	return
+func (r *PageReq) Name() string {
+	return r.name
 }
 
-func (p *Page) remove(keyName string, index int) (err error) {
-	err = nil
-
-	delete(p.keys, keyName)
-
-	return
+func (r *PageReq) Args() []interface{} {
+	return r.args
 }
 
-func (p *Page) load(keyName string, index int) (types.Key, error) {
-	var (
-		key types.Key
-		err error
-		ok  bool
-	)
+func (r *PageReq) start() {
+	go func() {
+		<-r.stop
+		close(r.res)
+	}()
+}
 
-	if key, ok = p.keys[keyName]; !ok {
-		err = errors.New(ErrUndefinedKey)
+func (r *PageReq) Done() PageRes {
+	defer r.Stop()
+	return <-r.res
+}
+
+func (r *PageReq) AddRes(res PageRes) {
+	r.res <- res
+}
+
+func (r *PageReq) Stop() {
+	close(r.stop)
+}
+
+type PageRes interface {
+	Err() error
+}
+
+type BasePageRes struct {
+	err error
+}
+
+func (bpr *BasePageRes) Err() error {
+	return bpr.err
+}
+
+type StrPageRes struct {
+	*BasePageRes
+	val string
+}
+
+func NewStrPageRes(val string, err error) *StrPageRes {
+	return &StrPageRes{
+		&BasePageRes{err: err},
+		val,
 	}
+}
 
-	return key, err
+func (spr *StrPageRes) Val() string {
+	return spr.val
+}
+
+type KeyPageRes struct {
+	*BasePageRes
+	val Key
+}
+
+func NewKeyPageRes(val Key, err error) *KeyPageRes {
+	return &KeyPageRes{
+		&BasePageRes{err: err},
+		val,
+	}
+}
+
+func (kpr *KeyPageRes) Val() Key {
+	return kpr.val
 }

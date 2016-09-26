@@ -1,13 +1,25 @@
 {
-    "comment": "",
-    "ignore": "test",
-    "package": [
-        {
-            "checksumSHA1": "HmbftipkadrLlCfzzVQ+iFHbl6g=",
-            "path": "github.com/golang/glog",
-            "revision": "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
-            "revisionTime": "2016-01-25T20:49:56Z"
-        }
-    ],
-    "rootPath": "github.com/kotfalya/store"
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "Tc6/agpmg2y2/pEI/99tNn0GihU=",
+			"path": "github.com/OneOfOne/xxhash",
+			"revision": "5d931d4a2da753f31d09cb2862ffa01c44bc656b",
+			"revisionTime": "2016-04-08T17:30:21Z"
+		},
+		{
+			"checksumSHA1": "JbYs/gjJjA3Ukhj+6DRhDsq1e60=",
+			"path": "github.com/OneOfOne/xxhash/native",
+			"revision": "5d931d4a2da753f31d09cb2862ffa01c44bc656b",
+			"revisionTime": "2016-04-08T17:30:21Z"
+		},
+		{
+			"checksumSHA1": "HmbftipkadrLlCfzzVQ+iFHbl6g=",
+			"path": "github.com/golang/glog",
+			"revision": "23def4e6c14b4da8ac2ed8007337bc5eb5007998",
+			"revisionTime": "2016-01-25T20:49:56Z"
+		}
+	],
+	"rootPath": "github.com/kotfalya/store"
 }

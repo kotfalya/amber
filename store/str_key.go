@@ -1,4 +1,4 @@
-package types
+package store
 
 var (
 	_ Key = (*StringKey)(nil)
@@ -9,7 +9,7 @@ type StringKey struct {
 	value string
 }
 
-func NewStringKey(name string) Key {
+func NewStringKey(name string) *StringKey {
 	return &StringKey{
 		BaseKey{name: name},
 		"",
@@ -24,4 +24,8 @@ func (sk *StringKey) SetValue(value interface{}) error {
 	sk.value = value.(string)
 
 	return nil
+}
+
+func (sk *StringKey) StrValue() string {
+	return sk.value
 }

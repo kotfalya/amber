@@ -5,8 +5,7 @@ var (
 )
 
 type Cmd interface {
-	New(name string) Key
-	Process(st *Store) error
+	Process(st *Store)
 	Res() CmdRes
 	SetRes(res CmdRes)
 }

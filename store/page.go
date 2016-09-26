@@ -44,6 +44,10 @@ func (p *Page) handler(req *PageReq) {
 
 		req.AddRes(NewKeyPageRes(key, err))
 	case "add":
+		key := req.args[0].(Key)
+		err := p.add(key)
+
+		req.AddRes(NewEmptyPageRes(err))
 	case "remove":
 
 	}
@@ -100,14 +104,16 @@ func (p *Page) add(key Key) (err error) {
 
 		p.keys[key.Name()] = key
 
-		return nil
+		err = nil
 	} else {
 		index := 0 // TODO add calculate index function
 		child := p.leafs[index]
 		p.muRW.Unlock()
 
-		return child.add(key)
+		err = child.add(key)
 	}
+
+	return
 }
 
 type PageReq struct {
@@ -158,22 +164,26 @@ type PageRes interface {
 	Err() error
 }
 
-type BasePageRes struct {
+type EmptyPageRes struct {
 	err error
 }
 
-func (bpr *BasePageRes) Err() error {
-	return bpr.err
+func (epr *EmptyPageRes) Err() error {
+	return epr.err
+}
+
+func NewEmptyPageRes(err error) *EmptyPageRes {
+	return &EmptyPageRes{err: err}
 }
 
 type StrPageRes struct {
-	*BasePageRes
+	*EmptyPageRes
 	val string
 }
 
 func NewStrPageRes(val string, err error) *StrPageRes {
 	return &StrPageRes{
-		&BasePageRes{err: err},
+		&EmptyPageRes{err: err},
 		val,
 	}
 }
@@ -183,13 +193,13 @@ func (spr *StrPageRes) Val() string {
 }
 
 type KeyPageRes struct {
-	*BasePageRes
+	*EmptyPageRes
 	val Key
 }
 
 func NewKeyPageRes(val Key, err error) *KeyPageRes {
 	return &KeyPageRes{
-		&BasePageRes{err: err},
+		&EmptyPageRes{err: err},
 		val,
 	}
 }

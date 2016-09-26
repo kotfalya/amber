@@ -34,25 +34,19 @@ func NewBKGetCmd(keyName string) *BKGetCmd {
 	return cmd
 }
 
-func (bkc *BKGetCmd) Process(st *store.Store) error {
+func (bkc *BKGetCmd) Process(st *store.Store) {
 	var res *store.StrCmdRes
 
-	if key, err := st.GetKey(bkc.keyName); err != nil {
+	if key, err := st.FindKey(bkc.keyName); err != nil {
 		res = store.NewStrCmdRes("", err)
 	} else {
 		switch bestKey := key.(type) {
 		case BestKey:
 			res = store.NewStrCmdRes(bestKey.StrValue(), nil)
 		default:
-			return errors.New(store.ErrInvalidKeyType)
+			res = store.NewStrCmdRes("", errors.New(store.ErrInvalidKeyType))
 		}
 	}
 
 	bkc.SetRes(res)
-
-	return nil
-}
-
-func (bkc *BKGetCmd) New(name string) store.Key {
-	return NewBestKey(name)
 }

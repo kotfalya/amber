@@ -20,8 +20,16 @@ func main() {
 	//}()
 
 	st := example.NewMyStore()
-	str, err := st.MyGet("test")
-	fmt.Println(str)
-	fmt.Println(err)
+
+	if _, err := st.Set("test", "haha"); err != nil {
+		fmt.Println(err)
+	}
+
+	if str, err := st.Get("test"); err != nil {
+
+		fmt.Println(err)
+	} else {
+		fmt.Println(str)
+	}
 
 }

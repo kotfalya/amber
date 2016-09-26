@@ -76,10 +76,10 @@ func (p *Page) Stop() {
 }
 
 func (p *Page) load(keyName string) (key Key, err error) {
-	//p.muRW.RLock()
+	p.muRW.RLock()
 
 	if p.leaf {
-		//defer p.muRW.RUnlock()
+		defer p.muRW.RUnlock()
 		var ok bool
 
 		if key, ok = p.keys[keyName]; !ok {

@@ -1,2 +1,2 @@
-# store
-KV store 
+# storage
+KV storage 

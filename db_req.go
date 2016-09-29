@@ -8,19 +8,20 @@ type Req struct {
 }
 
 func newReq(name string, args ...interface{}) *Req {
-	return &Req{
+	req := &Req{
 		name: name,
 		args: args,
 		res:  make(chan Res),
 		stop: make(chan struct{}),
 	}
+	go req.start()
+
+	return req
 }
 
 func (r *Req) start() {
-	go func() {
-		<-r.stop
-		close(r.res)
-	}()
+	<-r.stop
+	close(r.res)
 }
 
 func (r *Req) Stop() {
@@ -32,6 +33,6 @@ func (r *Req) Done() Res {
 	return <-r.res
 }
 
-func NewAddReq(keyName string) *Req {
-	return newReq("get", keyName)
+func NewAddReq(keyName string, readLevel int) *Req {
+	return newReq("get", keyName, readLevel)
 }

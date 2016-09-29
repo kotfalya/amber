@@ -19,6 +19,7 @@ func NewDB(config *Config) *DB {
 		req:    make(chan *Req, 10),
 		stop:   make(chan struct{}),
 	}
+	go db.start()
 
 	return db
 }
@@ -45,5 +46,5 @@ func (db *DB) start() {
 func (db *DB) handle(req *Req) {
 	glog.V(2).Infof("req:  %s, args: %v", req.name, req.args)
 
-	req.res <- NewEmptyRes(nil)
+	req.res <- NewStrRes("hi", nil)
 }

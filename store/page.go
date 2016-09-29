@@ -2,27 +2,31 @@ package store
 
 import (
 	"errors"
-	"github.com/kotfalya/store/utils"
 	"sync"
+	"time"
+
+	"github.com/kotfalya/store/utils"
 )
 
 type Page struct {
-	leaf  bool
-	muRW  sync.RWMutex
-	keys  map[string]Key
-	leafs []*Page
-	req   chan *PageReq
-	stop  chan struct{}
+	leaf         bool
+	scaleStarted bool
+	muRW         sync.RWMutex
+	keys         map[string]Key
+	leafs        []*Page
+	req          chan *PageReq
+	stop         chan struct{}
 }
 
 func NewPage() *Page {
 	page := &Page{
-		leaf:  true,
-		muRW:  sync.RWMutex{},
-		keys:  make(map[string]Key, *pageKeysSize),
-		leafs: make([]*Page, *pageLeafPoolSize),
-		req:   make(chan *PageReq, *pageReqBufferSize),
-		stop:  make(chan struct{}),
+		leaf:         true,
+		scaleStarted: false,
+		muRW:         sync.RWMutex{},
+		keys:         make(map[string]Key, *pageKeysSize),
+		leafs:        make([]*Page, *pageLeafPoolSize),
+		req:          make(chan *PageReq, *pageReqBufferSize),
+		stop:         make(chan struct{}),
 	}
 	go page.start()
 
@@ -56,6 +60,8 @@ func (p *Page) handler(req *PageReq) {
 func (p *Page) start() {
 	sem := utils.NewSemaphore(*pageReqBufferSize)
 
+	scaleTicker := time.NewTicker(time.Second * time.Duration(*checkPageSizeEvery)).C
+
 	for {
 		select {
 		case req := <-p.req:
@@ -64,6 +70,8 @@ func (p *Page) start() {
 				defer sem.Release()
 				p.handler(req)
 			}(req)
+		case <-scaleTicker:
+			go p.startScaleProcess()
 		case <-p.stop:
 			close(p.req)
 			return

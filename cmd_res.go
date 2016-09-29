@@ -1,46 +1,4 @@
-package store
-
-var (
-	_ CmdRes = (*StrCmdRes)(nil)
-)
-
-type Key interface {
-	Name() string
-	Enabled() bool
-	Value() interface{}
-	SetValue(interface{}) error
-}
-
-type BaseKey struct {
-	enabled bool
-	name    string
-}
-
-func (bk *BaseKey) Name() string {
-	return bk.name
-}
-
-func (bk *BaseKey) Enabled() bool {
-	return bk.enabled
-}
-
-type Cmd interface {
-	Process(st *Store)
-	Res() CmdRes
-	SetRes(res CmdRes)
-}
-
-type BaseCmd struct {
-	res CmdRes
-}
-
-func (bc *BaseCmd) Res() CmdRes {
-	return bc.res
-}
-
-func (bc *BaseCmd) SetRes(res CmdRes) {
-	bc.res = res
-}
+package db
 
 type CmdRes interface {
 	Err() error

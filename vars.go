@@ -1,66 +1,112 @@
 package db
 
 import (
+	"errors"
 	"strings"
 )
 
 const (
+	// TODO add args to error
 	ErrUndefinedKey   = "db: undefined key"
 	ErrInvalidKeyType = "db: invalid key type"
 	ErrInvalidResType = "db: invalid res type"
 
-	OptionNotFound = -1
+	ErrUnknownErrorCode = "db: unknown error code"
+	ErrOptionNotFound   = "db: option not found"
+	ErrOptionInvalid    = "db: option is invalid"
 
-	RecordLevelTitle           = "level"
-	RecordLevelOptimisticTitle = "optimistic"
-	RecordLevelStableTitle     = "stable"
+	LevelTitle           = "level"
+	LevelOptimisticTitle = "optimistic"
+	LevelLocalTitle      = "local"
+	LevelMasterTitle     = "master"
+
+	PersistTitle      = "persist"
+	PersistNoneTitle  = "none"
+	PersistAsyncTitle = "async"
+	PersistSyncTitle  = "sync"
 )
 
 const (
-	RecordLevelMemory = iota
-	RecordLevelDisk
-
-	NetLevelNone = iota
-	NetLevelAsync
-	NetLevelSync
+	OptionNotFound = -1 * iota
+	OptionInvalid
 )
 
 const (
-	ReadLevelOptimistic = iota
-	ReadLevelStable
+	PersistNone = iota
+	PersistAsync
+	PersistSync
 )
 
 const (
-	WriteLevelOptimistic = iota
-	WriteLevelTransactionApproved
-	WriteLevelSaved
+	LevelOptimistic = iota
+	LevelLocal
+	LevelMaster
 )
 
-func ParseReadLevel(options []string) int {
-	if len(options) == 0 {
-		return OptionNotFound
+func readOption(option, defaultOption int) (int, error) {
+	if option >= 0 {
+		return option, nil
+	} else {
+		return defaultOption, parseErrorCode(option)
 	}
+}
 
-	var level string
+func parseErrorCode(code int) error {
+	switch code {
+	case OptionInvalid:
+		return errors.New(ErrOptionInvalid)
+	case OptionNotFound:
+		return errors.New(ErrOptionNotFound)
+	default:
+		panic(ErrUnknownErrorCode)
+	}
+}
+
+func parseOption(optionName, options []string) string {
+	if len(options) == 0 {
+		return ""
+	}
 
 	for i, v := range options {
 		// check if next element exists and read it
-		if strings.ToLower(v) == RecordLevelTitle && len(options) > i+1 {
-			level = strings.ToLower(options[i+1])
-			break
+		if strings.ToLower(v) == optionName && len(options) > i+1 {
+			return strings.ToLower(options[i+1])
 		}
 	}
 
-	if level == "" {
-		return OptionNotFound
-	}
+	return ""
+}
 
-	switch level {
-	case RecordLevelOptimisticTitle:
-		return ReadLevelOptimistic
-	case RecordLevelStableTitle:
-		return ReadLevelStable
-	default:
+func parseLevel(options []string) int {
+	if level := parseOption(LevelTitle, options); level == "" {
 		return OptionNotFound
+	} else {
+		switch level {
+		case LevelOptimisticTitle:
+			return LevelOptimistic
+		case LevelLocalTitle:
+			return LevelLocal
+		case LevelMasterTitle:
+			return LevelMaster
+		default:
+			return OptionInvalid
+		}
+	}
+}
+
+func parsePersist(options []string) int {
+	if persist := parseOption(PersistTitle, options); persist == "" {
+		return OptionNotFound
+	} else {
+		switch persist {
+		case PersistNoneTitle:
+			return PersistNone
+		case PersistAsyncTitle:
+			return PersistAsync
+		case PersistSyncTitle:
+			return PersistSyncTitle
+		default:
+			return OptionInvalid
+		}
 	}
 }

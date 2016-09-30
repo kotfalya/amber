@@ -1,5 +1,7 @@
 package db
 
+import "github.com/golang/glog"
+
 type GetCmd struct {
 	*BaseCmd
 	keyName string
@@ -10,16 +12,14 @@ func NewGetCmd(keyName string, options ...string) *GetCmd {
 	return &GetCmd{
 		&BaseCmd{},
 		keyName,
-		ParseReadLevel(options),
+		parseLevel(options),
 	}
 }
 
 func (gc *GetCmd) Process(db *DB) {
-	var level int
-	if gc.level > -1 {
-		level = gc.level
-	} else {
-		level = db.config.readLevel
+	level, err := readOption(gc.level, db.config.readLevel)
+	if err != nil {
+		glog.Errorln(err)
 	}
 
 	if keyRes, err := GetReq(db, gc.keyName, level); err != nil {

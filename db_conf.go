@@ -1,28 +1,21 @@
 package db
 
 type Config struct {
-	recLevel int
-	netLevel int
-
+	persist    int
 	readLevel  int
 	writeLevel int
 }
 
 func DefaultConfig() *Config {
 	return &Config{
-		recLevel:   RecordLevelMemory,
-		netLevel:   NetLevelNone,
-		readLevel:  ReadLevelStable,
-		writeLevel: WriteLevelSaved,
+		persist:    PersistNone,
+		readLevel:  LevelLocal,
+		writeLevel: LevelMaster,
 	}
 }
 
-func (c *Config) SetRecordLevel(level int) {
-	c.recLevel = level
-}
-
-func (c *Config) SetNetLevel(level int) {
-	c.netLevel = level
+func (c *Config) SetPersist(persist int) {
+	c.persist = persist
 }
 
 func (c *Config) SetReadLevel(level int) {

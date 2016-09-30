@@ -11,6 +11,7 @@ import (
 type Page struct {
 	leaf         bool
 	scaleStarted bool
+	actualSize   uint
 	muRW         sync.RWMutex
 	keys         map[string]Key
 	leafs        []*Page
@@ -22,6 +23,7 @@ func NewPage() *Page {
 	page := &Page{
 		leaf:         true,
 		scaleStarted: false,
+		actualSize:   0,
 		muRW:         sync.RWMutex{},
 		keys:         make(map[string]Key, *pageKeysSize),
 		leafs:        make([]*Page, *pageLeafPoolSize),
@@ -114,12 +116,17 @@ func (p *Page) add(key Key) (err error) {
 
 		err = nil
 	} else {
-		index := 0 // TODO add calculate index function
-		child := p.leafs[index]
+		child := p.getLeaf(key.Name())
 		p.muRW.Unlock()
 
 		err = child.add(key)
 	}
 
+	return
+}
+
+func (p *Page) getLeaf(keyName string) (leaf *Page) {
+	index := 0 // TODO add calculate index function superPuper(keyName)
+	leaf = p.leafs[index]
 	return
 }

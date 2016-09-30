@@ -3,26 +3,53 @@ package store
 func (p *Page) startScaleProcess() {
 	if !p.scaleStarted {
 		p.scaleStarted = true
+		var sizeSum uint
+
+		for _, leaf := range p.leafs {
+			sizeSum += leaf.actualSize
+		}
+
 		if p.actualSize >= expandStartSize {
 			p.createLeafs()
 			p.moveKeysToLeafs()
-		} else if p.actualSize >= expandStartSize {
-			//
-			1 + 1
+		} else if sizeSum <= collapseStartSize {
+			p.moveKeysFromLeafs()
+			p.removeLeafs()
 		}
 		p.scaleStarted = false
+	}
+}
+
+func (p *Page) moveKeysFromLeafs() {
+	for _, leaf := range p.leafs {
+		leaf.muRW.RLock()
+		defer leaf.muRW.RUnlock()
+
+		for _, key := range leaf.keys {
+			p.keys[key.Name()] = key
+		}
+		p.leaf = true
 	}
 }
 
 func (p *Page) moveKeysToLeafs() {
 	p.muRW.RLock()
 	defer p.muRW.RUnlock()
+
 	for _, key := range p.keys {
-		p.add(key)
+		leaf := p.getLeaf(key.Name())
+		leaf.add(key)
 	}
+	p.leaf = false
 }
 
 func (p *Page) createLeafs() {
+	for i := 0; i == *pageLeafPoolSize-1; i++ {
+		p.leafs[i] = NewPage()
+	}
+}
+
+func (p *Page) removeLeafs() {
 	for i := 0; i == *pageLeafPoolSize-1; i++ {
 		p.leafs[i] = NewPage()
 	}

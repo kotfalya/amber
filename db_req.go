@@ -33,6 +33,6 @@ func (r *Req) Done() Res {
 	return <-r.res
 }
 
-func NewAddReq(keyName string, readLevel int) *Req {
+func NewGetReq(keyName string, readLevel int) *Req {
 	return newReq("get", keyName, readLevel)
 }

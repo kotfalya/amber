@@ -46,5 +46,8 @@ func (db *DB) start() {
 func (db *DB) handle(req *Req) {
 	glog.V(2).Infof("req:  %s, args: %v", req.name, req.args)
 
-	req.res <- NewStrRes("hi", nil)
+	key := NewStrKey("test")
+	key.SetVal("hihi")
+
+	req.res <- NewKeyRes(key, nil)
 }

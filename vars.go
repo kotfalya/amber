@@ -5,7 +5,9 @@ import (
 )
 
 const (
-	ErrInvalidResType = "cmd:invalid res type"
+	ErrUndefinedKey   = "db: undefined key"
+	ErrInvalidKeyType = "db: invalid key type"
+	ErrInvalidResType = "db: invalid res type"
 
 	OptionNotFound = -1
 

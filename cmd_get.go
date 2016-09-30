@@ -1,7 +1,5 @@
 package db
 
-import "errors"
-
 type GetCmd struct {
 	*BaseCmd
 	keyName string
@@ -24,14 +22,14 @@ func (gc *GetCmd) Process(db *DB) {
 		level = db.config.readLevel
 	}
 
-	req := NewAddReq(gc.keyName, level)
+	req := NewGetReq(gc.keyName, level)
 	db.req <- req
 	res := req.Done()
 
-	switch r := res.(type) {
-	case *StrRes:
-		gc.SetRes(NewStrCmdRes(r.Val(), nil))
-	default:
-		gc.SetRes(NewStrCmdRes("", errors.New(ErrInvalidResType)))
+	if keyRes, err := ToKeyRes(res); err != nil {
+		gc.SetRes(NewStrCmdRes("", err))
+	} else {
+		strKey, err := ToStrKey(keyRes.Val())
+		gc.SetRes(NewStrCmdRes(strKey.StrVal(), err))
 	}
 }

@@ -8,7 +8,6 @@ import (
 func main() {
 	database := db.NewDB(db.DefaultConfig())
 
-	glog.Infoln("1")
 	cmd := db.NewGetCmd("test", "level", "stable")
 	cmd.Process(database)
 	res := cmd.Res().(*db.StrCmdRes)

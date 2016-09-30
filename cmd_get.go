@@ -22,11 +22,7 @@ func (gc *GetCmd) Process(db *DB) {
 		level = db.config.readLevel
 	}
 
-	req := NewGetReq(gc.keyName, level)
-	db.req <- req
-	res := req.Done()
-
-	if keyRes, err := ToKeyRes(res); err != nil {
+	if keyRes, err := GetReq(db, gc.keyName, level); err != nil {
 		gc.SetRes(NewStrCmdRes("", err))
 	} else {
 		strKey, err := ToStrKey(keyRes.Val())

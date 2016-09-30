@@ -33,6 +33,9 @@ func (r *Req) Done() Res {
 	return <-r.res
 }
 
-func NewGetReq(keyName string, readLevel int) *Req {
-	return newReq("get", keyName, readLevel)
+func GetReq(db *DB, keyName string, readLevel int) (*KeyRes, error) {
+	req := newReq("get", keyName, readLevel)
+	db.req <- req
+
+	return ToKeyRes(req.Done())
 }

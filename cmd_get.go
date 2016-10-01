@@ -22,7 +22,10 @@ func (gc *GetCmd) Process(db *DB) {
 		glog.Errorln(err)
 	}
 
-	if keyRes, err := GetReq(db, gc.keyName, level); err != nil {
+	req := newReq(RequestKeyHandler, "get", gc.keyName, level)
+	db.req <- req
+
+	if keyRes, err := ToKeyRes(req.Done()); err != nil {
 		gc.SetRes(NewStrCmdRes("", err))
 	} else {
 		strKey, err := ToStrKey(keyRes.Val())

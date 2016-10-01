@@ -1,13 +1,14 @@
 package db
 
 import (
+	"errors"
 	"github.com/golang/glog"
 	"github.com/kotfalya/store/utils"
 )
 
 type DB struct {
 	config *Config
-	data   map[string]string
+	data   map[string]Key
 	req    chan *Req
 	stop   chan struct{}
 }
@@ -15,7 +16,7 @@ type DB struct {
 func NewDB(config *Config) *DB {
 	db := &DB{
 		config: config,
-		data:   make(map[string]string),
+		data:   make(map[string]Key),
 		req:    make(chan *Req, 10),
 		stop:   make(chan struct{}),
 	}
@@ -32,8 +33,17 @@ func (db *DB) start() {
 			sem.Acquire()
 			go func(req *Req) {
 				defer sem.Release()
+				switch req.handler {
+				case RequestKeyHandler:
+					db.keyHandle(req)
+				case RequestDBHandler:
+					db.dbHandle(req)
+				case RequestNetHandler:
+					db.netHandle(req)
+				default:
+					panic(errors.New(ErrInvalidReqHandler))
+				}
 
-				db.handle(req)
 			}(req)
 
 		case <-db.stop:
@@ -43,10 +53,18 @@ func (db *DB) start() {
 	}
 }
 
-func (db *DB) handle(req *Req) {
-	glog.V(2).Infof("req:  %s, args: %v", req.name, req.args)
+func (db *DB) dbHandle(req *Req) {
 
-	key := NewStrKey("test")
+}
+
+func (db *DB) netHandle(req *Req) {
+
+}
+
+func (db *DB) keyHandle(req *Req) {
+	glog.V(2).Infof("req:  %s, args: %v", req.cmd, req.args)
+
+	key := NewStrKey()
 	key.SetVal("hihi")
 
 	req.res <- NewKeyRes(key, nil)

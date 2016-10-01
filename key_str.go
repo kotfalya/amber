@@ -11,9 +11,9 @@ type StrKey struct {
 	val string
 }
 
-func NewStrKey(name string) *StrKey {
+func NewStrKey() *StrKey {
 	return &StrKey{
-		BaseKey{name: name},
+		BaseKey{},
 		"",
 	}
 }

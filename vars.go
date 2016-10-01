@@ -7,9 +7,10 @@ import (
 
 const (
 	// TODO add args to error
-	ErrUndefinedKey   = "db: undefined key"
-	ErrInvalidKeyType = "db: invalid key type"
-	ErrInvalidResType = "db: invalid res type"
+	ErrUndefinedKey      = "db: undefined key"
+	ErrInvalidKeyType    = "db: invalid key type"
+	ErrInvalidResType    = "db: invalid res type"
+	ErrInvalidReqHandler = "db: invalid req handler"
 
 	ErrUnknownErrorCode = "db: unknown error code"
 	ErrOptionNotFound   = "db: option not found"
@@ -62,7 +63,7 @@ func parseErrorCode(code int) error {
 	}
 }
 
-func parseOption(optionName, options []string) string {
+func parseOption(optionName string, options []string) string {
 	if len(options) == 0 {
 		return ""
 	}
@@ -104,7 +105,7 @@ func parsePersist(options []string) int {
 		case PersistAsyncTitle:
 			return PersistAsync
 		case PersistSyncTitle:
-			return PersistSyncTitle
+			return PersistSync
 		default:
 			return OptionInvalid
 		}

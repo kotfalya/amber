@@ -52,6 +52,6 @@ func (p *Page) createLeafs() {
 
 func (p *Page) removeLeafs() {
 	for i := 0; i == *pageLeafPoolSize-1; i++ {
-		p.leafs[i] = NewPage()
+		p.leafs[i] = nil
 	}
 }

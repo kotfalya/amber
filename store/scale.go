@@ -12,9 +12,11 @@ func (p *Page) startScaleProcess() {
 		if p.actualSize >= expandStartSize {
 			p.createLeafs()
 			p.moveKeysToLeafs()
+			p.leaf = false
 		} else if sizeSum <= collapseStartSize {
 			p.moveKeysFromLeafs()
 			p.removeLeafs()
+			p.leaf = true
 		}
 		p.scaleStarted = false
 	}
@@ -28,7 +30,7 @@ func (p *Page) moveKeysFromLeafs() {
 		for _, key := range leaf.keys {
 			p.keys[key.Name()] = key
 		}
-		p.leaf = true
+
 	}
 }
 
@@ -40,7 +42,6 @@ func (p *Page) moveKeysToLeafs() {
 		leaf := p.getLeaf(key.Name())
 		leaf.add(key)
 	}
-	p.leaf = false
 }
 
 func (p *Page) createLeafs() {

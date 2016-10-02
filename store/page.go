@@ -113,6 +113,7 @@ func (p *Page) add(key Key) (err error) {
 		defer p.muRW.Unlock()
 
 		p.keys[key.Name()] = key
+		p.actualSize -= 1
 
 		err = nil
 	} else {
@@ -122,6 +123,11 @@ func (p *Page) add(key Key) (err error) {
 		err = child.add(key)
 	}
 
+	return
+}
+func (p *Page) remove(key Key) (err error) {
+	err = nil
+	p.actualSize -= 1
 	return
 }
 

@@ -2,27 +2,33 @@ package store
 
 import (
 	"errors"
-	"github.com/kotfalya/store/utils"
 	"sync"
+	"time"
+
+	"github.com/kotfalya/store/utils"
 )
 
 type Page struct {
-	leaf  bool
-	muRW  sync.RWMutex
-	keys  map[string]Key
-	leafs []*Page
-	req   chan *PageReq
-	stop  chan struct{}
+	leaf         bool
+	scaleStarted bool
+	actualSize   uint
+	muRW         sync.RWMutex
+	keys         map[string]Key
+	leafs        []*Page
+	req          chan *PageReq
+	stop         chan struct{}
 }
 
 func NewPage() *Page {
 	page := &Page{
-		leaf:  true,
-		muRW:  sync.RWMutex{},
-		keys:  make(map[string]Key, *pageKeysSize),
-		leafs: make([]*Page, *pageLeafPoolSize),
-		req:   make(chan *PageReq, *pageReqBufferSize),
-		stop:  make(chan struct{}),
+		leaf:         true,
+		scaleStarted: false,
+		actualSize:   0,
+		muRW:         sync.RWMutex{},
+		keys:         make(map[string]Key, *pageKeysSize),
+		leafs:        make([]*Page, *pageLeafPoolSize),
+		req:          make(chan *PageReq, *pageReqBufferSize),
+		stop:         make(chan struct{}),
 	}
 	go page.start()
 
@@ -56,6 +62,8 @@ func (p *Page) handler(req *PageReq) {
 func (p *Page) start() {
 	sem := utils.NewSemaphore(*pageReqBufferSize)
 
+	scaleTicker := time.NewTicker(time.Second * time.Duration(*checkPageSizeEvery)).C
+
 	for {
 		select {
 		case req := <-p.req:
@@ -64,6 +72,8 @@ func (p *Page) start() {
 				defer sem.Release()
 				p.handler(req)
 			}(req)
+		case <-scaleTicker:
+			go p.startScaleProcess()
 		case <-p.stop:
 			close(p.req)
 			return
@@ -103,15 +113,26 @@ func (p *Page) add(key Key) (err error) {
 		defer p.muRW.Unlock()
 
 		p.keys[key.Name()] = key
+		p.actualSize -= 1
 
 		err = nil
 	} else {
-		index := 0 // TODO add calculate index function
-		child := p.leafs[index]
+		child := p.getLeaf(key.Name())
 		p.muRW.Unlock()
 
 		err = child.add(key)
 	}
 
+	return
+}
+func (p *Page) remove(key Key) (err error) {
+	err = nil
+	p.actualSize -= 1
+	return
+}
+
+func (p *Page) getLeaf(keyName string) (leaf *Page) {
+	index := 0 // TODO add calculate index function superPuper(keyName)
+	leaf = p.leafs[index]
 	return
 }

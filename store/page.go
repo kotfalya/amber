@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kotfalya/store/utils"
+	"github.com/kotfalya/db/utils"
 )
 
 type Page struct {
@@ -98,8 +98,7 @@ func (p *Page) load(keyName string) (key Key, err error) {
 
 		return
 	} else {
-		index := 0 // TODO add calculate index function
-		child := p.leafs[index]
+		child := p.getLeaf(keyName)
 		p.muRW.RUnlock()
 
 		return child.load(keyName)
@@ -113,7 +112,7 @@ func (p *Page) add(key Key) (err error) {
 		defer p.muRW.Unlock()
 
 		p.keys[key.Name()] = key
-		p.actualSize -= 1
+		p.actualSize += 1
 
 		err = nil
 	} else {

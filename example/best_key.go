@@ -2,7 +2,8 @@ package example
 
 import (
 	"errors"
-	"github.com/kotfalya/store/store"
+
+	"github.com/kotfalya/db/store"
 )
 
 var (

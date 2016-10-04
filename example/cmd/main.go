@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/kotfalya/store/example"
+
+	"github.com/kotfalya/db/example"
 )
 
 func main() {

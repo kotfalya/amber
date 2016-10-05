@@ -61,7 +61,7 @@ func (db *DB) load(keyName string, level int) (Key, error) {
 	}
 }
 
-func (db *DB) add(keyName string, key Key) error {
+func (db *DB) add(keyName string, key Key, level int) error {
 	db.data[keyName] = key
 
 	return nil

@@ -54,3 +54,32 @@ func ToStrRes(res Res) *StrRes {
 		return NewStrRes("", errors.New(ErrInvalidResType))
 	}
 }
+
+type BoolRes struct {
+	*EmptyRes
+	val bool
+}
+
+func NewBoolRes(val bool, err error) *BoolRes {
+	return &BoolRes{
+		&EmptyRes{err: err},
+		val,
+	}
+}
+
+func (sr *BoolRes) Val() bool {
+	return sr.val
+}
+
+func ToBoolRes(res Res) *BoolRes {
+	switch sr := res.(type) {
+	case *BoolRes:
+		return sr
+	case *StopRes:
+		return NewBoolRes(false, sr.err)
+	case *EmptyRes:
+		return NewBoolRes(false, sr.err)
+	default:
+		return NewBoolRes(false, errors.New(ErrInvalidResType))
+	}
+}

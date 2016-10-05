@@ -24,6 +24,10 @@ func NewSetCmd(keyName string, value string, options ...string) *SetCmd {
 	}
 }
 
+func (gc *SetCmd) BoolRes() *BoolRes {
+	return ToBoolRes(gc.res)
+}
+
 func (gc *SetCmd) Process(db *DB) {
 	level, err := readOption(gc.level, db.config.readLevel)
 	if err != nil {
@@ -34,7 +38,11 @@ func (gc *SetCmd) Process(db *DB) {
 		glog.Errorln(err)
 	}
 
-	req := newReq(RequestKeyHandler, KeyCmdModeUpsert, "set", gc.keyName, gc.value, level, persist)
+	newKeyFunc := func() Key {
+		return NewStrKey()
+	}
+
+	req := newReq(RequestKeyHandler, KeyCmdModeUpsert, newKeyFunc, gc.keyName, level, "set", gc.value, persist)
 	db.req <- req
 	gc.SetRes(req.Done())
 }

@@ -9,6 +9,7 @@ const (
 	// TODO add args to error
 	ErrUndefinedKey      = "db: undefined key"
 	ErrInvalidKeyType    = "db: invalid key type"
+	ErrUndefinedKeyCmd   = "db: undefined key command"
 	ErrInvalidResType    = "db: invalid res type"
 	ErrInvalidReqHandler = "db: invalid req handler"
 	ErrStopRequest       = "db: req was interrupted"

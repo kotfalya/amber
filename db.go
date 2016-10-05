@@ -34,12 +34,12 @@ func (db *DB) start() {
 			go func(req *Req) {
 				defer sem.Release()
 				switch req.handler {
-				case RequestKeyHandler:
-					db.keyHandle(req)
 				case RequestDBHandler:
-					db.dbHandle(req)
+					DBHandle(db, req)
+				case RequestKeyHandler:
+					KeyHandler(db, req)
 				case RequestNetHandler:
-					db.netHandle(req)
+					NetHandler(db, req)
 				default:
 					panic(errors.New(ErrInvalidReqHandler))
 				}
@@ -53,19 +53,6 @@ func (db *DB) start() {
 	}
 }
 
-func (db *DB) dbHandle(req *Req) {
+func DBHandle(db *DB, req *Req) {
 
-}
-
-func (db *DB) netHandle(req *Req) {
-
-}
-
-func (db *DB) keyHandle(req *Req) {
-	glog.V(2).Infof("req:  %s, args: %v", req.cmd, req.args)
-
-	key := NewStrKey()
-	key.SetVal("hihi")
-
-	req.res <- NewStrRes(key.StrVal(), nil)
 }

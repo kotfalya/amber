@@ -1,7 +1,5 @@
 package db
 
-import "errors"
-
 var (
 	_ Key = (*StrKey)(nil)
 )
@@ -15,15 +13,6 @@ func NewStrKey() *StrKey {
 	return &StrKey{
 		BaseKey{},
 		"",
-	}
-}
-
-func ToStrKey(key Key) (*StrKey, error) {
-	switch sk := key.(type) {
-	case *StrKey:
-		return sk, nil
-	default:
-		return nil, errors.New(ErrInvalidKeyType)
 	}
 }
 

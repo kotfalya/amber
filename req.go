@@ -33,7 +33,7 @@ func (r *Req) start() {
 	interrupt := <-r.stop
 	close(r.stop)
 	if interrupt {
-		r.res <- NewStopRes(errors.New("ErrStopRequest"))
+		r.res <- NewStopRes(errors.New(ErrStopRequest))
 	}
 	close(r.res)
 }

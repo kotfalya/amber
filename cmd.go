@@ -2,18 +2,18 @@ package db
 
 type Cmd interface {
 	Process(db *DB)
-	Res() CmdRes
-	SetRes(res CmdRes)
+	Res() Res
+	SetRes(res Res)
 }
 
 type BaseCmd struct {
-	res CmdRes
+	res Res
 }
 
-func (bc *BaseCmd) Res() CmdRes {
+func (bc *BaseCmd) Res() Res {
 	return bc.res
 }
 
-func (bc *BaseCmd) SetRes(res CmdRes) {
+func (bc *BaseCmd) SetRes(res Res) {
 	bc.res = res
 }

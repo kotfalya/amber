@@ -67,5 +67,5 @@ func (db *DB) keyHandle(req *Req) {
 	key := NewStrKey()
 	key.SetVal("hihi")
 
-	req.res <- NewKeyRes(key, nil)
+	req.res <- NewStrRes(key.StrVal(), nil)
 }

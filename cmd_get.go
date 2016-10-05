@@ -2,6 +2,10 @@ package db
 
 import "github.com/golang/glog"
 
+var (
+	_ Cmd = (*GetCmd)(nil)
+)
+
 type GetCmd struct {
 	*BaseCmd
 	keyName string
@@ -24,11 +28,9 @@ func (gc *GetCmd) Process(db *DB) {
 
 	req := newReq(RequestKeyHandler, "get", gc.keyName, level)
 	db.req <- req
+	gc.SetRes(req.Done())
+}
 
-	if keyRes, err := ToKeyRes(req.Done()); err != nil {
-		gc.SetRes(NewStrCmdRes("", err))
-	} else {
-		strKey, err := ToStrKey(keyRes.Val())
-		gc.SetRes(NewStrCmdRes(strKey.StrVal(), err))
-	}
+func (gc *GetCmd) StrRes() *StrRes {
+	return ToStrRes(gc.res)
 }

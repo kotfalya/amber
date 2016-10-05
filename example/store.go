@@ -1,7 +1,7 @@
 package example
 
 import (
-	"github.com/kotfalya/store/store"
+	"github.com/kotfalya/db/store"
 )
 
 type MyStore struct {

@@ -45,13 +45,13 @@ func (p *Page) moveKeysToLeafs() {
 }
 
 func (p *Page) createLeafs() {
-	for i := 0; i == *pageLeafPoolSize-1; i++ {
+	for i := range p.leafs {
 		p.leafs[i] = NewPage()
 	}
 }
 
 func (p *Page) removeLeafs() {
-	for i := 0; i == *pageLeafPoolSize-1; i++ {
+	for i := range p.leafs {
 		p.leafs[i] = nil
 	}
 }

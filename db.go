@@ -53,6 +53,20 @@ func (db *DB) start() {
 	}
 }
 
+func (db *DB) load(keyName string, level int) (Key, error) {
+	if key, ok := db.data[keyName]; ok {
+		return key, nil
+	} else {
+		return nil, errors.New(ErrUndefinedKey)
+	}
+}
+
+func (db *DB) add(keyName string, key Key) error {
+	db.data[keyName] = key
+
+	return nil
+}
+
 func DBHandle(db *DB, req *Req) {
 
 }

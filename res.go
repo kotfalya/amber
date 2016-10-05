@@ -18,6 +18,12 @@ func NewEmptyRes(err error) *EmptyRes {
 	return &EmptyRes{err: err}
 }
 
+type StopRes EmptyRes
+
+func NewStopRes(err error) *StopRes {
+	return &StopRes{err: err}
+}
+
 type StrRes struct {
 	*EmptyRes
 	val string
@@ -50,10 +56,10 @@ func (kr *KeyRes) Val() Key {
 	return kr.val
 }
 
-func ToKeyRes(res Res) (*KeyRes, error) {
-	switch kr := res.(type) {
-	case *KeyRes:
-		return kr, nil
+func ToStrRes(res Res) (*StrRes, error) {
+	switch sr := res.(type) {
+	case *StrRes:
+		return sr, nil
 	default:
 		return nil, errors.New(ErrInvalidResType)
 	}

@@ -1,5 +1,7 @@
 package db
 
+import "errors"
+
 const (
 	RequestDBHandler = iota
 	RequestNetHandler
@@ -11,7 +13,7 @@ type Req struct {
 	cmd     string
 	args    []interface{}
 	res     chan Res
-	stop    chan struct{}
+	stop    chan bool
 }
 
 func newReq(handler int, cmd string, args ...interface{}) *Req {
@@ -20,7 +22,7 @@ func newReq(handler int, cmd string, args ...interface{}) *Req {
 		cmd:     cmd,
 		args:    args,
 		res:     make(chan Res),
-		stop:    make(chan struct{}),
+		stop:    make(chan bool),
 	}
 	go req.start()
 
@@ -28,15 +30,19 @@ func newReq(handler int, cmd string, args ...interface{}) *Req {
 }
 
 func (r *Req) start() {
-	<-r.stop
+	interrupt := <-r.stop
+	close(r.stop)
+	if interrupt {
+		r.res <- NewStopRes(errors.New("ErrStopRequest"))
+	}
 	close(r.res)
 }
 
 func (r *Req) Stop() {
-	close(r.stop)
+	r.stop <- true
 }
 
 func (r *Req) Done() Res {
-	defer r.Stop()
+	defer func() { r.stop <- false }()
 	return <-r.res
 }

@@ -11,6 +11,7 @@ const (
 	ErrInvalidKeyType    = "db: invalid key type"
 	ErrInvalidResType    = "db: invalid res type"
 	ErrInvalidReqHandler = "db: invalid req handler"
+	ErrStopRequest       = "db: req was interrupted"
 
 	ErrUnknownErrorCode = "db: unknown error code"
 	ErrOptionNotFound   = "db: option not found"

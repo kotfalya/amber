@@ -15,7 +15,7 @@ func (bk *BaseKey) Deleted() bool {
 }
 
 func KeyHandler(db *DB, req *Req) {
-	glog.V(2).Infof("req:  %s, args: %v", req.cmd, req.args)
+	glog.V(2).Infof("req: %s, args: %v", req.options[1], req.options)
 
 	key := NewStrKey()
 	key.SetVal("hihi")

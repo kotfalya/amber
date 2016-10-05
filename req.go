@@ -10,17 +10,15 @@ const (
 
 type Req struct {
 	handler int
-	cmd     string
-	args    []interface{}
+	options []interface{}
 	res     chan Res
 	stop    chan bool
 }
 
-func newReq(handler int, cmd string, args ...interface{}) *Req {
+func newReq(handler int, options ...interface{}) *Req {
 	req := &Req{
 		handler: handler,
-		cmd:     cmd,
-		args:    args,
+		options: options,
 		res:     make(chan Res),
 		stop:    make(chan bool),
 	}

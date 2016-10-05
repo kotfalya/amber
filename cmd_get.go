@@ -26,7 +26,7 @@ func (gc *GetCmd) Process(db *DB) {
 		glog.Errorln(err)
 	}
 
-	req := newReq(RequestKeyHandler, "get", gc.keyName, level)
+	req := newReq(RequestKeyHandler, KeyCmdModeRead, "get", gc.keyName, level)
 	db.req <- req
 	gc.SetRes(req.Done())
 }

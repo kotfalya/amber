@@ -34,7 +34,7 @@ func (gc *SetCmd) Process(db *DB) {
 		glog.Errorln(err)
 	}
 
-	req := newReq(RequestKeyHandler, "set", gc.keyName, gc.value, level, persist)
+	req := newReq(RequestKeyHandler, KeyCmdModeUpsert, "set", gc.keyName, gc.value, level, persist)
 	db.req <- req
 	gc.SetRes(req.Done())
 }

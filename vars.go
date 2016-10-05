@@ -29,6 +29,12 @@ const (
 )
 
 const (
+	KeyCmdModeRead = iota
+	KeyCmdModeUpdate
+	KeyCmdModeUpsert
+)
+
+const (
 	OptionNotFound = -1 * iota
 	OptionInvalid
 )

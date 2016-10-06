@@ -8,14 +8,16 @@ import (
 
 type DB struct {
 	config *Config
+	name   string
 	data   map[string]Key
 	req    chan *Req
 	stop   chan struct{}
 }
 
-func NewDB(config *Config) *DB {
+func NewDB(name string, config *Config) *DB {
 	db := &DB{
 		config: config,
+		name:   name,
 		data:   make(map[string]Key),
 		req:    make(chan *Req, 10),
 		stop:   make(chan struct{}),
@@ -30,6 +32,7 @@ func (db *DB) start() {
 	for {
 		select {
 		case req := <-db.req:
+			req.master = db.name
 			sem.Acquire()
 			go func(req *Req) {
 				defer sem.Release()

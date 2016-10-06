@@ -9,6 +9,7 @@ const (
 )
 
 type Req struct {
+	master  string
 	handler int
 	options []interface{}
 	res     chan Res
@@ -41,6 +42,8 @@ func (r *Req) Stop() {
 }
 
 func (r *Req) Done() Res {
-	defer func() { r.stop <- false }()
+	defer func() {
+		r.stop <- false
+	}()
 	return <-r.res
 }

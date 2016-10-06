@@ -4,22 +4,32 @@ import "github.com/golang/glog"
 
 type Key interface {
 	Deleted() bool
+	Master() string
 	handle(req *Req, cmd string, args ...interface{})
 }
 
 type BaseKey struct {
 	deleted bool
+	master  string
 }
 
 func (bk *BaseKey) Deleted() bool {
 	return bk.deleted
 }
 
+func (bk *BaseKey) Master() string {
+	return bk.master
+}
+
+func (bk *BaseKey) SetMaster(master string) {
+	bk.master = master
+}
+
 func KeyHandler(db *DB, req *Req) {
 	mode := req.options[0].(int)
-	var newKeyFunc func() Key
+	var newKeyFunc func(master string) Key
 	if mode == KeyCmdModeUpsert {
-		newKeyFunc = req.options[1].(func() Key)
+		newKeyFunc = req.options[1].(func(master string) Key)
 	} else {
 		newKeyFunc = nil
 	}
@@ -37,7 +47,7 @@ func KeyHandler(db *DB, req *Req) {
 	} else if err != nil && mode != KeyCmdModeUpsert {
 		req.res <- NewEmptyRes(err)
 	} else if err != nil {
-		key = newKeyFunc()
+		key = newKeyFunc(req.master)
 		go db.add(keyName, key, level)
 	}
 

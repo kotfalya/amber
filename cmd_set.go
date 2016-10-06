@@ -38,8 +38,8 @@ func (gc *SetCmd) Process(db *DB) {
 		glog.Errorln(err)
 	}
 
-	newKeyFunc := func() Key {
-		return NewStrKey()
+	newKeyFunc := func(master string) Key {
+		return NewStrKey(master)
 	}
 
 	req := newReq(RequestKeyHandler, KeyCmdModeUpsert, newKeyFunc, gc.keyName, level, "set", gc.value, persist)

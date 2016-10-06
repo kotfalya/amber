@@ -8,7 +8,7 @@ import (
 
 func main() {
 	flag.Parse()
-	database := db.NewDB(db.DefaultConfig())
+	database := db.NewDB("node1", db.DefaultConfig())
 
 	setCmd := db.NewSetCmd("test", "test val", "level", "local")
 	setCmd.Process(database)

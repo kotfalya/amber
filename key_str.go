@@ -26,11 +26,7 @@ func (sk *StrKey) handle(req *Req, cmd string, args ...interface{}) {
 		res = NewStrRes(sk.StrVal(), nil)
 	case "set":
 		err := sk.SetVal(args[0])
-		if err != nil {
-			res = NewBoolRes(false, err)
-		} else {
-			res = NewBoolRes(true, nil)
-		}
+		res = NewBoolRes(err == nil, err)
 	default:
 		res = NewEmptyRes(errors.New(ErrUndefinedKeyCmd))
 	}

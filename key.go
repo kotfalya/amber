@@ -42,9 +42,7 @@ func KeyHandler(db *DB, req *Req) {
 	glog.V(2).Infof("mode: %d, level: %d, cmd: %s, keyName: %s, args: %v", mode, level, cmd, keyName, args)
 
 	key, err := db.load(keyName, level)
-	if err != nil && err.Error() != ErrUndefinedKey {
-		req.res <- NewEmptyRes(err)
-	} else if err != nil && mode != KeyCmdModeUpsert {
+	if err != nil && (err.Error() != ErrUndefinedKey || mode != KeyCmdModeUpsert) {
 		req.res <- NewEmptyRes(err)
 	} else if err != nil {
 		key = newKeyFunc(req.master)

@@ -1,11 +1,11 @@
 package utils
 
-import "hash/adler32"
+import "github.com/OneOfOne/xxhash"
 
-// TextToIndex func determines scaled int hash by text
-func TextToIndex(text string, scale int) int {
+// GetIndex func determines scaled int hash by text
+func GetIndex(text string, scale uint32, seed uint32) uint {
 	byteText := []byte(text)
-	checkSum := adler32.Checksum(byteText)
+	hash := xxhash.Checksum32S(byteText, seed)
 
-	return int((checkSum % uint32(scale)) - uint32(1))
+	return uint(hash % scale)
 }

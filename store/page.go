@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -17,6 +18,7 @@ type Page struct {
 	leafs        []*Page
 	req          chan *PageReq
 	stop         chan struct{}
+	seed         uint32
 }
 
 func NewPage() *Page {
@@ -29,6 +31,7 @@ func NewPage() *Page {
 		leafs:        make([]*Page, *pageLeafPoolSize),
 		req:          make(chan *PageReq, *pageReqBufferSize),
 		stop:         make(chan struct{}),
+		seed:         rand.Uint32(),
 	}
 	go page.start()
 
@@ -131,7 +134,7 @@ func (p *Page) remove(key Key) (err error) {
 }
 
 func (p *Page) getLeaf(keyName string) (leaf *Page) {
-	index := 0 // TODO add calculate index function superPuper(keyName)
+	index := utils.GetIndex(keyName, *pageLeafPoolSize, p.seed)
 	leaf = p.leafs[index]
 	return
 }

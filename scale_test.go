@@ -1,4 +1,4 @@
-package store
+package db
 
 import (
 	"strconv"
@@ -34,7 +34,7 @@ func TestMoveKeys(t *testing.T) {
 
 	// Populate page keys
 	for i := 1; i <= int(*pageKeysSize); i++ {
-		p.add(NewStringKey(strconv.Itoa(i)))
+		p.add(strconv.Itoa(i), NewStrKey("node1"))
 	}
 
 	p.moveKeysToLeafs()

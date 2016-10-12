@@ -1,4 +1,4 @@
-package store
+package db
 
 import (
 	"errors"
@@ -53,8 +53,9 @@ func (p *Page) handler(req *PageReq) {
 
 		req.AddRes(NewKeyPageRes(key, err))
 	case "add":
-		key := req.args[0].(Key)
-		err := p.add(key)
+		keyName := req.args[0].(string)
+		key := req.args[1].(Key)
+		err := p.add(keyName, key)
 
 		req.AddRes(NewEmptyPageRes(err))
 	case "remove":
@@ -108,21 +109,21 @@ func (p *Page) load(keyName string) (key Key, err error) {
 	}
 }
 
-func (p *Page) add(key Key) (err error) {
+func (p *Page) add(name string, key Key) (err error) {
 	p.muRW.Lock()
 
 	if p.leaf {
 		defer p.muRW.Unlock()
 
-		p.keys[key.Name()] = key
+		p.keys[name] = key
 		p.actualSize += 1
 
 		err = nil
 	} else {
-		child := p.getLeaf(key.Name())
+		child := p.getLeaf(name)
 		p.muRW.Unlock()
 
-		err = child.add(key)
+		err = child.add(name, key)
 	}
 
 	return
@@ -134,7 +135,7 @@ func (p *Page) remove(key Key) (err error) {
 }
 
 func (p *Page) getLeaf(keyName string) (leaf *Page) {
-	index := utils.GetIndex(keyName, *pageLeafPoolSize, p.seed)
+	index := utils.GetIndex(keyName, uint32(*pageLeafPoolSize), p.seed)
 	leaf = p.leafs[index]
 	return
 }

@@ -1,4 +1,4 @@
-package store
+package db
 
 func (p *Page) startScaleProcess() {
 	if !p.scaleStarted {
@@ -25,12 +25,10 @@ func (p *Page) startScaleProcess() {
 func (p *Page) moveKeysFromLeafs() {
 	for _, leaf := range p.leafs {
 		leaf.muRW.RLock()
-		defer leaf.muRW.RUnlock()
-
-		for _, key := range leaf.keys {
-			p.keys[key.Name()] = key
+		for name, key := range leaf.keys {
+			p.keys[name] = key
 		}
-
+		leaf.muRW.RUnlock()
 	}
 }
 
@@ -38,9 +36,9 @@ func (p *Page) moveKeysToLeafs() {
 	p.muRW.RLock()
 	defer p.muRW.RUnlock()
 
-	for _, key := range p.keys {
-		leaf := p.getLeaf(key.Name())
-		leaf.add(key)
+	for name, key := range p.keys {
+		leaf := p.getLeaf(name)
+		leaf.add(name, key)
 	}
 }
 

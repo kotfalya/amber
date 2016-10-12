@@ -2,8 +2,29 @@ package db
 
 import (
 	"errors"
+	"flag"
 	"strings"
 )
+
+var (
+	pageKeysSize          = flag.Uint("pageKeysSize", 1000, "Max keys in one page")
+	pageExpandThreshold   = flag.Uint("pageExpandThreshold", 90, "Threshold for a page expand (in percents). Should be between 1 and 100")
+	pageCollapseThreshold = flag.Uint("pageCollapseThreshold", 50, "Threshold for a page collapse (in percents). Should be between 1 and 100")
+	pageLeafPoolSize      = flag.Uint("pageLeafPoolSize", 50, " Page leaf pool size")
+	pageReqBufferSize     = flag.Int("pageReqBufferSize", 10, "Requests buffer size")
+	checkPageSizeEvery    = flag.Int("checkPageSizeEvery", 1, "How often page will check own size to begin expand process (is seconds).")
+
+	expandStartSize   = calculateExpandStartSize()
+	collapseStartSize = calculateCollapseStartSize()
+)
+
+func calculateExpandStartSize() uint {
+	return *pageKeysSize * *pageExpandThreshold / 100
+}
+
+func calculateCollapseStartSize() uint {
+	return *pageKeysSize * *pageCollapseThreshold / 100
+}
 
 const (
 	// TODO add args to error

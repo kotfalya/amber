@@ -13,7 +13,7 @@ type StrKey struct {
 
 func NewStrKey(master string) *StrKey {
 	return &StrKey{
-		BaseKey{master: master},
+		*NewBaseKey(master),
 		"",
 	}
 }

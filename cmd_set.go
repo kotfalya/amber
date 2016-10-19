@@ -24,16 +24,16 @@ func NewSetCmd(keyName string, value string, options ...string) *SetCmd {
 	}
 }
 
-func (gc *SetCmd) BoolRes() *BoolRes {
-	return ToBoolRes(gc.res)
+func (sc *SetCmd) BoolRes() *BoolRes {
+	return ToBoolRes(sc.res)
 }
 
-func (gc *SetCmd) Process(db *DB) {
-	level, err := readOption(gc.level, db.config.readLevel)
+func (sc *SetCmd) Process(db *DB) {
+	level, err := readOption(sc.level, db.config.readLevel)
 	if err != nil {
 		glog.Errorln(err)
 	}
-	persist, err := readOption(gc.persist, db.config.persist)
+	persist, err := readOption(sc.persist, db.config.persist)
 	if err != nil {
 		glog.Errorln(err)
 	}
@@ -42,7 +42,7 @@ func (gc *SetCmd) Process(db *DB) {
 		return NewStrKey(master)
 	}
 
-	req := newReq(RequestKeyHandler, KeyCmdModeUpsert, newKeyFunc, gc.keyName, level, "set", gc.value, persist)
+	req := newReq(RequestKeyHandler, KeyCmdModeUpsert, newKeyFunc, sc.keyName, level, "set", sc.value, persist)
 	db.req <- req
-	gc.SetRes(req.Done())
+	sc.SetRes(req.Done())
 }

@@ -2,19 +2,26 @@ package db
 
 import "github.com/golang/glog"
 
+var (
+	_ KeyNet = (*BaseKey)(nil)
+)
+
 type Key interface {
-	Deleted() bool
-	Master() string
 	handle(req *Req, cmd string, args ...interface{})
 }
 
-type BaseKey struct {
-	deleted bool
-	master  string
+type KeyNet interface {
+	Master() string
+	Head() uint32
+	AddDiff(diff *Diff)
 }
 
-func (bk *BaseKey) Deleted() bool {
-	return bk.deleted
+type BaseKey struct {
+	master  string
+	head    uint32
+	commits map[uint32]*Commit
+	diffs   map[uint32]*Diff
+	deleted bool
 }
 
 func (bk *BaseKey) Master() string {
@@ -23,6 +30,22 @@ func (bk *BaseKey) Master() string {
 
 func (bk *BaseKey) SetMaster(master string) {
 	bk.master = master
+}
+
+func (bk *BaseKey) Head() uint32 {
+	return bk.head
+}
+
+func (bk *BaseKey) AddDiff(diff *Diff) {
+	bk.diffs[diff.commitId] = diff
+}
+
+func NewBaseKey(master string) *BaseKey {
+	return &BaseKey{
+		master:  master,
+		commits: make(map[uint32]*Commit),
+		diffs:   make(map[uint32]*Diff),
+	}
 }
 
 func KeyHandler(db *DB, req *Req) {

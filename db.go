@@ -2,25 +2,26 @@ package db
 
 import (
 	"errors"
+
 	"github.com/golang/glog"
-	"github.com/kotfalya/store/utils"
+	"github.com/kotfalya/db/utils"
 )
 
 type DB struct {
-	config *Config
-	name   string
-	data   map[string]Key
-	req    chan *Req
-	stop   chan struct{}
+	config   *Config
+	name     string
+	rootPage *Page
+	req      chan *Req
+	stop     chan struct{}
 }
 
 func NewDB(name string, config *Config) *DB {
 	db := &DB{
-		config: config,
-		name:   name,
-		data:   make(map[string]Key),
-		req:    make(chan *Req, 10),
-		stop:   make(chan struct{}),
+		config:   config,
+		name:     name,
+		rootPage: createRootPage(),
+		req:      make(chan *Req, 10),
+		stop:     make(chan struct{}),
 	}
 	go db.start()
 
@@ -57,17 +58,17 @@ func (db *DB) start() {
 }
 
 func (db *DB) load(keyName string, level int) (Key, error) {
-	if key, ok := db.data[keyName]; ok {
-		return key, nil
-	} else {
+	key, err := db.rootPage.load(keyName)
+	if err != nil {
 		return nil, errors.New(ErrUndefinedKey)
 	}
+	return key, nil
 }
 
-func (db *DB) add(keyName string, key Key, level int) error {
-	db.data[keyName] = key
+func (db *DB) add(keyName string, key Key, level int) (err error) {
+	err = db.rootPage.add(keyName, key)
 
-	return nil
+	return
 }
 
 func DBHandle(db *DB, req *Req) {

@@ -1,10 +1,10 @@
-package db
+package amber
 
 import (
 	"errors"
 
 	"github.com/golang/glog"
-	"github.com/kotfalya/db/utils"
+	"github.com/kotfalya/amber/utils"
 )
 
 type DB struct {

@@ -1,4 +1,4 @@
-package db
+package amber
 
 type Commit struct {
 	id     uint32

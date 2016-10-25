@@ -1,4 +1,4 @@
-package db
+package amber
 
 type PageReq struct {
 	name string

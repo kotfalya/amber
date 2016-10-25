@@ -1,4 +1,4 @@
-package db
+package amber
 
 import "github.com/golang/glog"
 

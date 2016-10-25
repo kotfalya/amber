@@ -10,6 +10,3 @@
 - **KeyName** key name in storage
 - **readLevel** Read level options
 - **return** **string**
-
-#### SET ####
-`SET keyName LEVEL writeLevel NET netLevel`

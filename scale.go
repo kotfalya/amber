@@ -1,4 +1,4 @@
-package db
+package amber
 
 func (p *Page) startScaleProcess() {
 	if !p.scaleStarted {

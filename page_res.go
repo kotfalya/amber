@@ -1,4 +1,4 @@
-package db
+package amber
 
 type PageRes interface {
 	Err() error

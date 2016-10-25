@@ -1,4 +1,4 @@
-package db
+package amber
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kotfalya/db/utils"
+	"github.com/kotfalya/amber/utils"
 )
 
 type Page struct {

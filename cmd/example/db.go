@@ -4,7 +4,7 @@ import (
 	"flag"
 
 	"github.com/golang/glog"
-	"github.com/kotfalya/db"
+	db "github.com/kotfalya/amber"
 )
 
 func main() {
